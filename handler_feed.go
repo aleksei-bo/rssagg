@@ -20,7 +20,7 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON", err))
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON!!", err))
 		return
 	}
 
@@ -29,13 +29,23 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 		Name:      params.Name,
-		URL:       params.URL,
+		Url:       params.URL,
 		UserID:    user.ID,
 	})
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Couldn't create user: %v", err))
+		respondWithError(w, 400, fmt.Sprintf("Couldn't create feed: %v", err))
 		return
 	}
 
-	respondWithJSON(w, 201, databaseUserToUser(user))
+	respondWithJSON(w, 201, databaseFeedToFeed(feed))
+}
+
+func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := apiCfg.DB.GetFeeds(r.Context())
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Couldn't get feeds: %v", err))
+		return
+	}
+
+	respondWithJSON(w, 201, databaseFeedsToFeeds(feeds))
 }
